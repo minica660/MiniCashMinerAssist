@@ -93,6 +93,9 @@ public class Assist implements CommandExecutor {
                 elytraItemMeta.setDisplayName("§4エリトラ補助OFF状態");
             }
 
+            nightItem.setItemMeta(nightItemMeta);
+            durabilityItem.setItemMeta(durabilityItemMeta);
+            elytraItem.setItemMeta(elytraItemMeta);
 
 
             inventory.setItem(1, nightItem);
@@ -102,6 +105,12 @@ public class Assist implements CommandExecutor {
             player.openInventory(inventory);
 
         }
+
+
+
+        return true;
+    }
+}
 
 
 
