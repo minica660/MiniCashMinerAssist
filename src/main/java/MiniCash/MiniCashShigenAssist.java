@@ -11,15 +11,15 @@ public final class MiniCashShigenAssist extends JavaPlugin {
         if (!getDataFolder().exists()) {
             getDataFolder().mkdirs();
         }
-        MPublic mPublic = new MPublic(this);
-        Event e = new Event(this,mPublic);
-        getCommand("assist").setExecutor(new Assist(e,this));
-        getCommand("minerassist").setExecutor(new Assist(e,this));
+        Model model = new Model(this);
+        Event e = new Event(this, model);
+        getCommand("assist").setExecutor(new Assist(this));
+        getCommand("minerassist").setExecutor(new Assist(this));
         getServer().getPluginManager().registerEvents(e, this);
 
         saveDefaultConfig();
 
-        mPublic.nightVision();
+        model.nightVision();
     }
 
     @Override

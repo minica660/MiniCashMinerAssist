@@ -20,10 +20,8 @@ import java.io.File;
 
 public class Assist implements CommandExecutor {
 
-    private Event e;
     private MiniCashShigenAssist plugin;
-    public Assist(Event e, MiniCashShigenAssist plugin) {
-        this.e = e;
+    public Assist( MiniCashShigenAssist plugin) {
         this.plugin = plugin;
     }
     @Override
@@ -105,12 +103,6 @@ public class Assist implements CommandExecutor {
             player.openInventory(inventory);
 
         }
-
-
-
-        return true;
-    }
-}
 
 
 

@@ -2,16 +2,13 @@ package MiniCash;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
@@ -24,7 +21,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
-import org.checkerframework.checker.units.qual.C;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,11 +29,11 @@ import java.util.UUID;
 public class Event implements Listener {
 
     private final MiniCashShigenAssist plugin;
-    private final MPublic mPublic;
+    private final Model model;
 
-    public Event(MiniCashShigenAssist plugin,MPublic mPublic) {
+    public Event(MiniCashShigenAssist plugin, Model model) {
         this.plugin = plugin;
-        this.mPublic = mPublic;
+        this.model = model;
     }
 
     private File folder;
@@ -71,7 +67,7 @@ public class Event implements Listener {
                 config.set("Durability_value",false);
                 config.set("elytra",false);
                 config.save(playerFile);
-                
+
                 player.sendMessage("[§aMiniCashShigenAssist§r] §6データファイルを作成しました");
                 plugin.getLogger().info(player.getName() + " のデータファイルを作成しました！");
 
@@ -85,11 +81,11 @@ public class Event implements Listener {
             FileConfiguration playerConfig = YamlConfiguration.loadConfiguration(playerFile);
 
             if(playerConfig.getBoolean("night_vision")){
-                mPublic.setCheckNightVision(player.getUniqueId());
+                model.setCheckNightVision(player.getUniqueId());
             }
 
             if (playerConfig.getBoolean("Durability_value")) {
-                mPublic.setCheckDurability(player.getUniqueId());
+                model.setCheckDurability(player.getUniqueId());
             }
 
 
@@ -102,16 +98,16 @@ public class Event implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event){
         // もしプレイヤーが暗視効果を受け取るプレイヤーを入れるListに入っていればListから削除
         UUID id = event.getPlayer().getUniqueId();
-        if (mPublic.getCheckNightVision().contains(id)){
-            mPublic.removeCheckNightVision(id);
+        if (model.getCheckNightVision().contains(id)){
+            model.removeCheckNightVision(id);
         }
 
-        if (mPublic.getCheckDurability().contains(id)){
-            mPublic.removeCheckDurability(id);
+        if (model.getCheckDurability().contains(id)){
+            model.removeCheckDurability(id);
         }
 
-        if (mPublic.getCheckNightVision().contains(id)){
-            mPublic.removeElytra(id);
+        if (model.getCheckNightVision().contains(id)){
+            model.removeElytra(id);
         }
     }
 
@@ -155,8 +151,8 @@ public class Event implements Listener {
                     plugin.getLogger().severe(e.getMessage());
                 }
 
-                if (mPublic.getCheckNightVision().contains(player.getUniqueId())) {
-                    mPublic.removeCheckNightVision(player.getUniqueId());
+                if (model.getCheckNightVision().contains(player.getUniqueId())) {
+                    model.removeCheckNightVision(player.getUniqueId());
                 }
 
                 nightItem.setItemMeta(nightItemMeta);
@@ -181,8 +177,8 @@ public class Event implements Listener {
                     plugin.getLogger().severe(e.getMessage());
                 }
 
-                if (!mPublic.getCheckNightVision().contains(player.getUniqueId())) {
-                    mPublic.setCheckNightVision(player.getUniqueId());
+                if (!model.getCheckNightVision().contains(player.getUniqueId())) {
+                    model.setCheckNightVision(player.getUniqueId());
                 }
 
                 nightItem.setItemMeta(nightItemMeta);
@@ -210,8 +206,8 @@ public class Event implements Listener {
                 }
 
 
-                if (mPublic.getCheckDurability().contains(player.getUniqueId())) {
-                    mPublic.removeCheckDurability(player.getUniqueId());
+                if (model.getCheckDurability().contains(player.getUniqueId())) {
+                    model.removeCheckDurability(player.getUniqueId());
                 }
 
                 durabilityItem.setItemMeta(durabilityItemMeta);
@@ -236,8 +232,8 @@ public class Event implements Listener {
                     plugin.getLogger().severe(e.getMessage());
                 }
 
-                if (!mPublic.getCheckDurability().contains(player.getUniqueId())) {
-                    mPublic.setCheckDurability(player.getUniqueId());
+                if (!model.getCheckDurability().contains(player.getUniqueId())) {
+                    model.setCheckDurability(player.getUniqueId());
                 }
 
                 durabilityItem.setItemMeta(durabilityItemMeta);
@@ -330,7 +326,7 @@ public class Event implements Listener {
 
             int time = 3;
 
-            mPublic.setElytra(player.getUniqueId(),time);
+            model.setElytra(player.getUniqueId(),time);
             plugin.getLogger().info(player.getName() + "のsetElytraメソッドを time" + time + "で呼び出しました");
 
 
@@ -343,7 +339,7 @@ public class Event implements Listener {
 
                     if (!player.isSneaking()) {
 
-                        mPublic.removeElytra(player.getUniqueId());
+                        model.removeElytra(player.getUniqueId());
                         plugin.getLogger().info(player.getName() + "のremoveElytraメソッドを呼び出しました");
 
                         message = Component.text("チャージを中断しました").color(NamedTextColor.RED);
@@ -373,7 +369,7 @@ public class Event implements Listener {
 
                         player.sendActionBar(message);
                         player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1, 1);
-                        mPublic.removeElytra(player.getUniqueId());
+                        model.removeElytra(player.getUniqueId());
                         plugin.getLogger().info(player.getName() + "のブーストが完了したため、removeElytraメソッドを呼び出しました");
 
 
@@ -418,7 +414,7 @@ public class Event implements Listener {
     @EventHandler
     public void PlayerItemDamage(PlayerItemDamageEvent event) {
 
-        if (!mPublic.getCheckDurability().contains(event.getPlayer().getUniqueId())) {
+        if (!model.getCheckDurability().contains(event.getPlayer().getUniqueId())) {
             return;
         }
 
@@ -446,6 +442,3 @@ public class Event implements Listener {
     }
 
 }
-
-
-
