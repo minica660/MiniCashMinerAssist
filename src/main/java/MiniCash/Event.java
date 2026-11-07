@@ -5,6 +5,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -20,6 +21,7 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 import java.io.File;
@@ -68,7 +70,7 @@ public class Event implements Listener {
                 config.set("elytra",false);
                 config.save(playerFile);
 
-                player.sendMessage("[§aMiniCashShigenAssist§r] §6データファイルを作成しました");
+                player.sendMessage("[§aAssist§r] §6データファイルを作成しました");
                 plugin.getLogger().info(player.getName() + " のデータファイルを作成しました！");
 
             } catch (IOException e) {
@@ -76,7 +78,7 @@ public class Event implements Listener {
                 plugin.getLogger().severe(e.getMessage());
             }
         }else {
-            player.sendMessage("[§aMiniCashShigenAssist§r] /minerassistで補助機能のON,OFFを切り替えられます");
+            player.sendMessage("[§aAssist§r] /minerassistで補助機能のON,OFFを切り替えられます");
 
             FileConfiguration playerConfig = YamlConfiguration.loadConfiguration(playerFile);
 
@@ -96,29 +98,36 @@ public class Event implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event){
-        // もしプレイヤーが暗視効果を受け取るプレイヤーを入れるListに入っていればListから削除
-        UUID id = event.getPlayer().getUniqueId();
-        if (model.getCheckNightVision().contains(id)){
-            model.removeCheckNightVision(id);
+
+        UUID uuid = event.getPlayer().getUniqueId();
+
+        if (model.getCheckNightVision().contains(uuid)){
+            model.removeCheckNightVision(uuid);
         }
 
-        if (model.getCheckDurability().contains(id)){
-            model.removeCheckDurability(id);
+        if (model.getCheckDurability().contains(uuid)){
+            model.removeCheckDurability(uuid);
         }
 
-        if (model.getCheckNightVision().contains(id)){
-            model.removeElytra(id);
+        if (model.getCheckNightVision().contains(uuid)){
+            model.removeElytra(uuid);
         }
     }
 
 
     @EventHandler
     public void inventoryClick(InventoryClickEvent event){
+
         if (event.getCurrentItem() == null){
             return;
         }
+
         Player player = (Player) event.getWhoClicked();
-        if ((event.getInventory().getHolder() instanceof GUI)) {
+
+        if ((event.getInventory().getHolder() instanceof GUIHolder)) {
+
+            event.setCancelled(true);
+
             File playerFile = new File((plugin.getDataFolder()), "players/" + player.getUniqueId() + ".yml");
 
             FileConfiguration playerConfig = YamlConfiguration.loadConfiguration(playerFile);
@@ -126,7 +135,6 @@ public class Event implements Listener {
 
             ItemStack clickedItem = event.getCurrentItem();
 
-            event.setCancelled(true);
 
             ItemStack nightItem = new ItemStack(Material.EMERALD_BLOCK);
             ItemStack durabilityItem = new ItemStack(Material.EMERALD_BLOCK);
@@ -139,7 +147,7 @@ public class Event implements Listener {
             if(clickedItem.getType() == Material.EMERALD_BLOCK && event.getSlot() == 1){
 
                 nightItem = new ItemStack(Material.REDSTONE_BLOCK);
-                nightItemMeta.setDisplayName("§4暗視OFF状態");
+                nightItemMeta.displayName(Component.text("暗視OFF状態" , NamedTextColor.DARK_RED));
 
 
                 playerConfig.set("night_vision",false);
@@ -166,10 +174,13 @@ public class Event implements Listener {
 
                 player.updateInventory();
             }else if(clickedItem.getType() == Material.REDSTONE_BLOCK && event.getSlot() == 1){
+
                 nightItem = new ItemStack(Material.EMERALD_BLOCK);
-                nightItemMeta.setDisplayName("§a暗視ON状態");
+
+                nightItemMeta.displayName(Component.text("暗視ON状態" , NamedTextColor.GREEN));
 
                 playerConfig.set("night_vision",true);
+
                 try {
                     playerConfig.save(playerFile);
                 } catch (IOException e) {
@@ -195,7 +206,7 @@ public class Event implements Listener {
 
             if (clickedItem.getType() == Material.EMERALD_BLOCK && event.getSlot() == 3) {
                 durabilityItem = new ItemStack(Material.REDSTONE_BLOCK);
-                durabilityItemMeta.setDisplayName("§4耐久値警告OFF状態");
+                durabilityItemMeta.displayName(Component.text("耐久値警告OFF状態" , NamedTextColor.DARK_RED));
 
                 playerConfig.set("Durability_value",false);
                 try {
@@ -220,11 +231,15 @@ public class Event implements Listener {
                 plugin.getLogger().info(player.getName() + " 耐久値警告OFF状態に変更しました");
 
                 player.updateInventory();
+
             }else if(clickedItem.getType() == Material.REDSTONE_BLOCK && event.getSlot() == 3) {
+
                 durabilityItem = new ItemStack(Material.EMERALD_BLOCK);
-                durabilityItemMeta.setDisplayName("§a耐久値警告ＯＮ状態");
+
+                durabilityItemMeta.displayName(Component.text("耐久値警告ON状態" ,NamedTextColor.GREEN));
 
                 playerConfig.set("Durability_value",true);
+
                 try {
                     playerConfig.save(playerFile);
                 } catch (IOException e) {
@@ -250,10 +265,13 @@ public class Event implements Listener {
             }
 
             if (clickedItem.getType() == Material.EMERALD_BLOCK && event.getSlot() == 5) {
+
                 elytraItem = new ItemStack(Material.REDSTONE_BLOCK);
-                elytraItemMeta.setDisplayName("§4エリトラ補助OFF状態");
+
+                elytraItemMeta.displayName(Component.text("エリトラ補助OFF状態" , NamedTextColor.DARK_RED));
 
                 playerConfig.set("elytra",false);
+
                 try {
                     playerConfig.save(playerFile);
                 } catch (IOException e) {
@@ -272,10 +290,13 @@ public class Event implements Listener {
 
                 player.updateInventory();
             }else if(clickedItem.getType() == Material.REDSTONE_BLOCK && event.getSlot() == 5) {
+
                 elytraItem = new ItemStack(Material.EMERALD_BLOCK);
-                elytraItemMeta.setDisplayName("§aエリトラ補助ＯＮ状態");
+
+                elytraItemMeta.displayName(Component.text("エリトラ補助ON状態" , NamedTextColor.GREEN));
 
                 playerConfig.set("elytra",true);
+
                 try {
                     playerConfig.save(playerFile);
                 } catch (IOException e) {
@@ -300,6 +321,7 @@ public class Event implements Listener {
 
 
     }
+
     @EventHandler
     public void playerSneak(PlayerToggleSneakEvent event) {
 
@@ -327,20 +349,21 @@ public class Event implements Listener {
             int time = 3;
 
             model.setElytra(player.getUniqueId(),time);
-            plugin.getLogger().info(player.getName() + "のsetElytraメソッドを time" + time + "で呼び出しました");
+//            plugin.getLogger().info(player.getName() + "のsetElytraメソッドを time" + time + "で呼び出しました");
 
 
 
             new BukkitRunnable() {
             Component message = Component.text("???").color(NamedTextColor.GREEN);
             int charget = time;
+
                 @Override
                 public void run() {
 
                     if (!player.isSneaking()) {
 
                         model.removeElytra(player.getUniqueId());
-                        plugin.getLogger().info(player.getName() + "のremoveElytraメソッドを呼び出しました");
+//                        plugin.getLogger().info(player.getName() + "のremoveElytraメソッドを呼び出しました");
 
                         message = Component.text("チャージを中断しました").color(NamedTextColor.RED);
 
@@ -358,9 +381,11 @@ public class Event implements Listener {
                     }
 
                     if(charget > 0){
+
                         message = Component.text("チャージ完了まで").color(NamedTextColor.GREEN).append(Component.text(charget+ "...").color(NamedTextColor.YELLOW));
 
                         player.sendActionBar(message);
+
                     }else if(charget == 0){
 
                         cancel();
@@ -370,12 +395,13 @@ public class Event implements Listener {
                         player.sendActionBar(message);
                         player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1, 1);
                         model.removeElytra(player.getUniqueId());
-                        plugin.getLogger().info(player.getName() + "のブーストが完了したため、removeElytraメソッドを呼び出しました");
+//                        plugin.getLogger().info(player.getName() + "のブーストが完了したため、removeElytraメソッドを呼び出しました");
 
 
                         player.setMetadata("MiniCash_shigen_assist_cooldownd",new FixedMetadataValue(plugin, true));
 
-                        if (player.isOnGround()){
+                        if (isPlayerRealOnGround(player)){
+
                             Vector vector = new Vector(0,2.1,0);
 
                             player.setVelocity(vector);
@@ -392,6 +418,7 @@ public class Event implements Listener {
                             player.removeMetadata("MiniCash_shigen_assist_cooldownd",plugin);
                             message = Component.text("クールダウン終了").color(NamedTextColor.DARK_AQUA);
                             player.sendActionBar(message);
+
                         },80);
 
                         return;
@@ -437,8 +464,55 @@ public class Event implements Listener {
     }
 
 
+
+    public boolean isPlayerRealOnGround(Player player) {
+
+        BoundingBox box = player.getBoundingBox();
+
+        BoundingBox groundCheckArea = new BoundingBox(
+                box.getMinX(), box.getMinY() - 0.01, box.getMinZ(),
+                box.getMaxX(), box.getMinY(), box.getMaxZ()
+        );
+
+        int minX = (int) Math.floor(groundCheckArea.getMinX());
+        int maxX = (int) Math.floor(groundCheckArea.getMaxX());
+        int minY = (int) Math.floor(groundCheckArea.getMinY());
+        int maxY = (int) Math.floor(groundCheckArea.getMaxY());
+        int minZ = (int) Math.floor(groundCheckArea.getMinZ());
+        int maxZ = (int) Math.floor(groundCheckArea.getMaxZ());
+
+        for (int x = minX; x <= maxX; x++) {
+
+            for (int y = minY; y <= maxY; y++) {
+
+                for (int z = minZ; z <= maxZ; z++) {
+
+                    Block block = player.getWorld().getBlockAt(x, y, z);
+
+                    if (block.getType().isSolid()) {
+
+                        if (groundCheckArea.overlaps(block.getBoundingBox())) {
+                            return true;
+                        }
+
+
+                    }
+
+                }
+
+            }
+
+        }
+
+
+        return false; // 空中にいると判定された場合
+    }
+
     public File getPlayerFile() {
         return playerFile;
     }
+
+
+
 
 }

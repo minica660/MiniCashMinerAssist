@@ -1,4 +1,4 @@
-name: MiniCashShigenAssist
+name: MShigenAssit
 version: '1.2'
 main: MiniCash.MiniCashShigenAssist
 api-version: '1.21'
@@ -9,9 +9,9 @@ commands:
     description: §cMinerassistプラグインのメインコマンド
     default: op
 
-    permission: minicashshigenassist.commands.minerassist
+    permission: mshigenassist.commands.minerassist
   assist:
     usage: "/assist"
     desctiption: §c採掘勢の助けになる機能を提供します
     default: op
-    permission: minicashshigenassist.commands.assist
+    permission: mshigenassist.commands.assist

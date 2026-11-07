@@ -1,6 +1,6 @@
 package MiniCash;
 
-import MiniCash.commands.Assist;
+import MiniCash.commands.AssistCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class MiniCashShigenAssist extends JavaPlugin {
@@ -13,8 +13,8 @@ public final class MiniCashShigenAssist extends JavaPlugin {
         }
         Model model = new Model(this);
         Event e = new Event(this, model);
-        getCommand("assist").setExecutor(new Assist(this));
-        getCommand("minerassist").setExecutor(new Assist(this));
+        getCommand("assist").setExecutor(new AssistCommand(this));
+        getCommand("minerassist").setExecutor(new AssistCommand(this));
         getServer().getPluginManager().registerEvents(e, this);
 
         saveDefaultConfig();

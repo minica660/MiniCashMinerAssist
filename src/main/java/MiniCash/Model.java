@@ -65,7 +65,7 @@ public class Model {
 
                 if(player != null && player.isOnline()) {
 
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 800, 1, false, false));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 1000, 1, false, false));
 
                 }
             });
